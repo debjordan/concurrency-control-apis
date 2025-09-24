@@ -1,0 +1,76 @@
+# APIs de Controle de Concorrência em C++
+
+## Estrutura do Projeto
+
+```
+concurrency-control-apis/
+├── README.md
+├── CMakeLists.txt
+├── include/
+│   ├── thread_pool/
+│   │   ├── thread_pool.h
+│   │   ├── task_queue.h
+│   │   └── worker_thread.h
+│   └── resource_manager/
+│       ├── resource_manager.h
+│       ├── shared_resource.h
+│       └── lock_types.h
+├── src/
+│   ├── thread_pool/
+│   │   ├── thread_pool.cpp
+│   │   ├── task_queue.cpp
+│   │   └── worker_thread.cpp
+│   └── resource_manager/
+│       ├── resource_manager.cpp
+│       ├── shared_resource.cpp
+│       └── lock_types.cpp
+├── examples/
+│   ├── thread_pool_example.cpp
+│   ├── resource_manager_example.cpp
+│   └── benchmark.cpp
+└── tests/
+    ├── test_thread_pool.cpp
+    └── test_resource_manager.cpp
+```
+
+## APIs Desenvolvidas
+
+### 1. Thread Pool API
+- **Propósito**: Gerenciamento eficiente de threads para execução de tarefas
+- **Conceitos**: Pool de threads, fila de tarefas, sincronização worker-producer
+- **Mecanismos**: `std::mutex`, `std::condition_variable`, `std::future`
+
+### 2. Resource Manager API
+- **Propósito**: Controle de acesso a recursos compartilhados
+- **Conceitos**: Locks exclusivos/compartilhados, RAII, deadlock prevention
+- **Mecanismos**: `std::shared_mutex`, `std::lock_guard`, `std::unique_lock`
+
+## Conceitos de Concorrência Abordados
+
+1. **Race Conditions**: Como evitar condições de corrida
+2. **Deadlocks**: Prevenção e detecção
+3. **Starvation**: Garantia de fairness
+4. **Memory Ordering**: Sincronização de memória
+5. **RAII**: Resource Acquisition Is Initialization
+6. **Producer-Consumer**: Padrão de comunicação entre threads
+
+## Compilação
+
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
+
+## Execução dos Exemplos
+
+```bash
+# Thread Pool Example
+./thread_pool_example
+
+# Resource Manager Example
+./resource_manager_example
+
+# Benchmark
+./benchmark
+```
