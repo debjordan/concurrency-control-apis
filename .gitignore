@@ -1,0 +1,42 @@
+# Arquivos de compilação
+build/
+bin/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+
+# Arquivos do CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arquivos de log
+*.log
+logs/
+
+# Documentação
+docs/
+html/
+latex/
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Executáveis dos exemplos
+thread_pool_example
+resource_manager_example
+benchmark
+test_thread_pool
+test_resource_manager
