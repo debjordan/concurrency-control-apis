@@ -1,5 +1,11 @@
 # APIs de Controle de Concorrência em C++
 
+Este projeto reúne implementações de **APIs de concorrência** em C++ para facilitar o aprendizado e o uso de conceitos fundamentais de **programação paralela e concorrente**.
+
+A ideia é mostrar, de forma prática, como evitar problemas clássicos como **condições de corrida**, **deadlocks** e **starvation**, enquanto usamos técnicas modernas de C++ para **otimizar desempenho e garantir segurança em ambientes multithread**.
+
+---
+
 ## Estrutura do Projeto
 
 ```
@@ -35,24 +41,112 @@ concurrency-control-apis/
 
 ## APIs Desenvolvidas
 
-### 1. Thread Pool API
-- **Propósito**: Gerenciamento eficiente de threads para execução de tarefas
-- **Conceitos**: Pool de threads, fila de tarefas, sincronização worker-producer
-- **Mecanismos**: `std::mutex`, `std::condition_variable`, `std::future`
+### 1. **Thread Pool API**
 
-### 2. Resource Manager API
-- **Propósito**: Controle de acesso a recursos compartilhados
-- **Conceitos**: Locks exclusivos/compartilhados, RAII, deadlock prevention
-- **Mecanismos**: `std::shared_mutex`, `std::lock_guard`, `std::unique_lock`
+* **Propósito**: Gerenciar um conjunto fixo de threads que executam várias tarefas.
+* **Conceitos**:
+
+  * Pool de threads: evita o custo de criar/destruir threads toda hora.
+  * Fila de tarefas: permite distribuir as tarefas de maneira organizada.
+  * Sincronização worker-producer: comunicação eficiente de quem envia e quem processa.
+
+* **Mecanismos usados**: `std::mutex`, `std::condition_variable`, `std::future`.
+  * Mutex: É usado para proteger seções críticas de código, garantindo que apenas uma thread possa acessar um recurso compartilhado por vez.
+    * std::mutex: Mutex básico
+    * std::recursive_mutex: Permite que a mesma thread trave múltiplas vezes
+    * std::timed_mutex: Permite tentar travar com timeout
+
+  * condition_variable: Usado para sincronização entre threads, permitindo que threads esperem por condições específicas.
+
+  * std::future e std::promise
+    * Permitem obter resultados de computações assíncronas.
+
+  * Padrões comuns de uso:
+    * Proteção de dados: std::mutex + std::lock_guard.
+    * Sincronização complexa: std::condition_variable.
+    * Computação assíncrona: std::future/std::async.
+    * Comunicação entre threads: std::promise/std::future.
+
+**Casos de uso**:
+
+* Servidores que processam várias requisições simultâneas.
+* Aplicações que executam tarefas pesadas em background (processamento de imagens, cálculos).
+* Sistemas que precisam balancear a carga entre várias CPUs.
+
+**Fluxo visual: Thread Pool**
+
+```
++--------------+         +-------------------+
+|   Programa   | ----->  |   Fila de Tarefas |
++--------------+         +-------------------+
+                               |
+                               v
+                     +-------------------+
+                     |   Worker Thread   |
+                     +-------------------+
+                               |
+                               v
+                     +-------------------+
+                     |   Executa Tarefa  |
+                     +-------------------+
+```
+
+---
+
+### 2. **Resource Manager API**
+
+* **Propósito**: Controlar acesso concorrente a recursos compartilhados (ex.: arquivos, sockets, memória).
+* **Conceitos**:
+
+  * Locks exclusivos e compartilhados (leitura x escrita).
+  * RAII (garante liberação automática dos recursos).
+  * Prevenção de deadlocks.
+* **Mecanismos usados**: `std::shared_mutex`, `std::lock_guard`, `std::unique_lock`.
+
+**Casos de uso**:
+
+* Controle de múltiplos usuários acessando a mesma base de dados em memória.
+* Leitura simultânea de configurações, mas escrita controlada.
+* Garantir que duas threads não modifiquem o mesmo recurso crítico ao mesmo tempo.
+
+**Fluxo visual: Resource Manager**
+
+```
+                  +----------------------+
+   Thread 1 ----> |                      | ----> acesso leitura
+   Thread 2 ----> |  Shared Resource     | ----> acesso leitura
+   Thread 3 ----> |   (Resource Manager) | ----> acesso escrita
+                  +----------------------+
+                         ^        ^
+                shared_lock   unique_lock
+              (múltiplos leitores) (um escritor)
+```
+
+---
 
 ## Conceitos de Concorrência Abordados
 
-1. **Race Conditions**: Como evitar condições de corrida
-2. **Deadlocks**: Prevenção e detecção
-3. **Starvation**: Garantia de fairness
-4. **Memory Ordering**: Sincronização de memória
-5. **RAII**: Resource Acquisition Is Initialization
-6. **Producer-Consumer**: Padrão de comunicação entre threads
+1. **Race Conditions** quando duas threads acessam/modificam dados sem controle → resultados imprevisíveis.
+2. **Deadlocks** quando duas threads ficam presas esperando uma à outra liberar um recurso.
+3. **Starvation** quando uma thread nunca consegue acesso ao recurso.
+4. **Memory Ordering** garante que instruções não sejam reordenadas de forma incorreta.
+5. **RAII** garante liberação de recursos automaticamente.
+6. **Producer-Consumer** padrão de comunicação entre quem produz e quem consome tarefas.
+
+---
+
+## Pontos
+
+* **Eficiência**: usar thread pool evita desperdício de recursos.
+* **Segurança**: locks corretos evitam bugs difíceis de detectar.
+* **Escalabilidade**: sistemas concorrentes bem projetados suportam muito mais carga.
+
+* Um e-commerce processando milhares de pedidos simultaneamente.
+* Uma API de streaming atendendo milhões de usuários.
+
+Tudo isso depende de **concorrência bem feita**.
+
+---
 
 ## Compilação
 
@@ -62,15 +156,16 @@ cmake ..
 make -j$(nproc)
 ```
 
+---
+
 ## Execução dos Exemplos
 
 ```bash
-# Thread Pool Example
 ./thread_pool_example
 
-# Resource Manager Example
 ./resource_manager_example
 
-# Benchmark
 ./benchmark
 ```
+
+---
